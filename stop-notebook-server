@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+export CHORUS_NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$CHORUS_NOTEBOOK_HOME/pyenv_paths.sh"
+
+NOTEBOOK_PORT_FILE="$CHORUS_NOTEBOOK_HOME"/.notebook.port
+
+if [ -f $NOTEBOOK_PORT_FILE ]; then
+  notebook_pid=$(lsof -t -i tcp:`cat $NOTEBOOK_PORT_FILE`)
+  if kill -0 $notebook_pid > /dev/null 2>&1; then
+    echo "stopping notebook "
+    kill -9 $notebook_pid
+    rm -f $NOTEBOOK_PORT_FILE
+  else
+    echo "could not stop notebook. check that process $notebook_pid exists"
+  fi
+else
+  echo "no notebook to stop"
+fi

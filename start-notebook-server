@@ -1,0 +1,20 @@
+#!/bin/sh
+export CHORUS_NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$CHORUS_NOTEBOOK_HOME/pyenv_paths.sh"
+
+if [[ -f "$CHORUS_NOTEBOOK_HOME/.production" ]]; then
+	    SERVER_FILE="$CHORUS_NOTEBOOK_HOME"/chorus_notebook-current/commander_lib/chorusNotebookServer.py
+else
+	    SERVER_FILE="$CHORUS_NOTEBOOK_HOME"/commander_lib/chorusNotebookServer.py
+fi
+NOTEBOOK_PORT_FILE="$CHORUS_NOTEBOOK_HOME"/.notebook.port
+
+if (test -f $NOTEBOOK_PORT_FILE ) && ( kill -0 $(lsof -t -i tcp:`cat $NOTEBOOK_PORT_FILE`) > /dev/null 2>&1 ); then
+  notebook_pid=$(lsof -t -i tcp:`cat $NOTEBOOK_PORT_FILE`)
+  echo "notebook already running as process $notebook_pid."
+else
+  echo "starting notebook"
+  python $SERVER_FILE >> ~/notebook.log 2>&1 &
+  echo "notebook started as pid $!"
+  echo "log is under ~/notebook.log"
+fi

@@ -1,0 +1,91 @@
+#!/bin/bash
+
+
+function usage() {
+	echo "**********************************************************"
+	echo "Install is complete, to start the chorus notebook service:"
+	echo "cd ${install_path}                                        "
+	echo "./start-notebook-server                                     "
+	echo "**********************************************************"
+}
+
+function log() {
+  echo "[install] $1"
+}
+function precheck() {
+   docker info > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+        echo "Docker service is not installed or started!"
+        echo "Please install docker and run \"service docker start\" before installing chorus notebook."
+        exit 1
+   fi
+   log "removing all previous notebook container..."
+   docker rm -f $(docker ps -aqf name=chorus_notebook.tmp.) > /dev/null 2>&1
+   log "removing all dangling docker images..."
+   docker rmi -f $(docker images -aqf dangling=true) > /dev/null 2>&1
+   log "loading the latest chorus_commander docker images..."
+   docker load -i chorus_commander_*.tar.gz || (echo "Not able to load the chorus_commander docker images, trying to pull the images from docker hub." && docker pull alpinedata/chorus_commander) || echo "Not able to pull the chorus_commander docker images, please get the images after the installation"
+
+}
+
+function release_cleanup() {
+    log "cleaning up previous releases..."
+    rm -rf $(ls -rt ./chorus_notebook-releases/ |head -$(expr $(ls -1 |wc -l) - 2))
+}
+
+function install() {
+	version=$(cat version)
+	destination_dir="${install_path}/chorus_notebook-releases/$version"
+	mkdir -p "${destination_dir}"
+	cp -rf ./* "${destination_dir}"
+	cd ${install_path}
+	touch .production
+	if [[ -L "${install_path}/chorus_notebook-current" ]]; then
+		unlink "${install_path}/chorus_notebook-current"
+	fi
+	ln -sf "./chorus_notebook-releases/$version" "${install_path}/chorus_notebook-current"
+	cd "${destination_dir}"
+	target=./lib/python2.7/commander_lib
+	if [[ -L $target ]]; then
+		unlink $target
+	fi
+	ln -sf ../../commander_lib $target
+	cd ${install_path}
+	ln -sf ./chorus_notebook-current/pyenv_paths.sh ./pyenv_paths.sh
+	#ln -sf ./chorus_notebook-current/start-notebook ./start-notebook
+	#ln -sf ./chorus_notebook-current/stop-notebook ./stop-notebook
+	ln -sf ./chorus_notebook-current/start-notebook-server ./start-notebook-server
+	ln -sf ./chorus_notebook-current/stop-notebook-server ./stop-notebook-server
+	cp -n ./chorus_notebook-current/commander_lib/default_settings.cfg ./settings.cfg
+	#ln -sf ./chorus_notebook-current/chorus_notebook_config.py ./chorus_notebook_config.py
+	release_cleanup
+}
+
+function perform_fresh_install {
+	echo "Enter the installation path: "
+  	read -e install_path
+	install
+	usage
+}
+
+function perform_upgrade() {
+	install_path=${CHORUS_NOTEBOOK_HOME}
+	install
+	usage
+}
+
+function main() {
+  precheck
+  if [[ -z "${CHORUS_NOTEBOOK_HOME}" ]]; then
+    log "No CHORUS_NOTEBOOK_HOME detected, preparing a fresh install"
+    perform_fresh_install
+    exit 0
+  else
+    log "CHORUS_NOTEBOOK_HOME detected in ${CHORUS_NOTEBOOK_HOME}, preparing upgrade."
+    perform_upgrade
+    exit 0
+  fi
+}
+
+main
+
