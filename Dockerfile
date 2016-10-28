@@ -20,6 +20,7 @@ ENV SHELL=/bin/bash
 
 WORKDIR /home/chorus/
 RUN mkdir -p /home/notebook/notebook
+ENV docker true
 ADD setup_env.sh /home/notebook/notebook/setup_env.sh
 WORKDIR /home/notebook/notebook
 RUN source ./setup_env.sh

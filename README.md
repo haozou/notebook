@@ -30,7 +30,7 @@ Dev Setup
 
 2. Run "source pyenv_paths.sh" to get into the correct python environment.
 
-3. Run "./start_notebook_server" to start service.
+3. Run "./bin/start_notebook_server" to start service.
 
 Production Setup
 =====
@@ -39,7 +39,7 @@ It will generate a chorus_notebook-${version}-${build_number}-${tag_hash}.sh ins
 Use this installer to install on production machine.
 Currently, it only supports redhat and suse kernel.
 
-After installation, run ./start-notebook-server to start the service.
+After installation, run ./bin/start-notebook-server to start the service.
 
 
 

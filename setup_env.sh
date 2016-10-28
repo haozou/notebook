@@ -11,6 +11,9 @@ pyenv rehash
 if [[ -z $packaging ]]; then
 	pyenv virtualenv $PYTHON_VERSION project_env
 	pyenv shell project_env
+	if [[ -z $docker ]]; then
+	    cat requirements | awk '{system("pip install " $1);}'
+	fi
 else
 	pip install virtualenv
 	virtualenv .

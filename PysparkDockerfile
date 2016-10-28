@@ -1,19 +1,19 @@
-FROM alpinedata/chorus_commander:latest
+FROM zh331873541/notebook:latest
 USER root
 RUN yum -y install wget
 RUN yum -y install java-1.7.0-openjdk-devel
 
-USER chorus
-ENV USER=chorus
-WORKDIR /home/chorus/
+USER notebook
+ENV USER=notebook
+WORKDIR /home/notebook/
 
 RUN wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.1-bin-hadoop2.6.tgz
 RUN tar -zxf spark-1.6.1-bin-hadoop2.6.tgz
 RUN rm -f spark-1.6.1-bin-hadoop2.6.tgz && mv spark-1.6.1-bin-hadoop2.6 spark
-WORKDIR /home/chorus/ChorusCommander
-ENV SPARK_HOME /home/chorus/spark
-ENV PATH /home/chorus/spark/bin:$PATH
+WORKDIR /home/notebook/notebook
+ENV SPARK_HOME /home/notebook/spark
+ENV PATH /home/notebook/spark/bin:$PATH
 ENV PYSPARK_DRIVER_PYTHON jupyter
-ENV PYSPARK_DRIVER_PYTHON_OPTS notebook --config=chorus_notebook_config.py
+ENV PYSPARK_DRIVER_PYTHON_OPTS notebook --config=notebook_config.py
 CMD source ./pyenv_paths.sh  && pyspark --master local[4]
 

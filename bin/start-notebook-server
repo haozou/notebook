@@ -1,5 +1,5 @@
 #!/bin/sh
-export NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 source "$NOTEBOOK_HOME/pyenv_paths.sh"
 
 if [[ -f "$NOTEBOOK_HOME/.production" ]]; then
