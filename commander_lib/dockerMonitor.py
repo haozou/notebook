@@ -1,6 +1,6 @@
 from threading import Thread
 import time
-import chorusNotebookRunner as cnr
+import notebookRunner as cnr
 from datetime import datetime
 from dateutil import parser
 from Log import logger

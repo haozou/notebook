@@ -1,11 +1,11 @@
-import chorusNotebookRunner as cnr
+import notebookRunner as cnr
 import os
 from functools import wraps
 from Log import logger
 from flask import Flask, jsonify, request, abort
 from tools import shell
 
-docker_container_name_prefix = "chorus_notebook.tmp."
+docker_container_name_prefix = "notebook.tmp."
 app = Flask(__name__)
 
 
@@ -52,24 +52,24 @@ def run_notebook_in_docker():
         return jsonify({"error": "username cannot be None"}), 403
     logger.debug("username: " + username)
 
-    chorus_address = request.form.get("chorus_address", "http://localhost:8080")
-    if chorus_address == None:
-        return jsonify({"error": "chorus_address cannot be None"}), 403
-    logger.debug("chorus_address: " + chorus_address)
+    master_address = request.form.get("master_address", "http://localhost:8080")
+    if master_address == None:
+        return jsonify({"error": "master_address cannot be None"}), 403
+    logger.debug("master_address: " + master_address)
 
-    image_name = request.form.get("image_name", "alpinedata/chorus_commander")
+    image_name = request.form.get("image_name", "zh331873541/notebook")
     if image_name == None:
         return jsonify({"error": "image_name cannot be None"}), 403
     logger.debug("image_name: " + image_name)
 
     command = request.form.get("command",
-                               app.config.get("COMMAND", "jupyter notebook --config=chorus_notebook_config.py"))
+                               app.config.get("COMMAND", "jupyter notebook --config=notebook_config.py"))
     logger.debug("command: " + command)
 
     options = {}
-    options["-e"] = ["CHORUS_ADDRESS=%s" % chorus_address, "PYTHONWARNINGS=\"ignore:Unverified HTTPS request\""]
+    options["-e"] = ["MASTER_ADDRESS=%s" % master_address, "PYTHONWARNINGS=\"ignore:Unverified HTTPS request\""]
     options["-v"] = []
-    if chorus_address.startswith("https") and app.config.get("CERTFILE", "") is not "" and app.config.get("KEYFILE",
+    if master_address.startswith("https") and app.config.get("CERTFILE", "") is not "" and app.config.get("KEYFILE",
                                                                                                           "") is not "":
         with open(app.config.get("CERTFILE", "")) as f:
             cert = ""
@@ -93,7 +93,7 @@ def run_notebook_in_docker():
         mounted_path = os.path.abspath(
             os.path.join(app.config.get("NOTEBOOK_DATA_DIR", ""), docker_container_name_prefix + username))
         shell("mkdir -p %s && chmod -R 777 %s" % (mounted_path, mounted_path))
-        docker_path = "/home/chorus/ChorusCommander/" + docker_container_name_prefix + username
+        docker_path = "/home/notebook/notebook/" + docker_container_name_prefix + username
         options["-v"].append(mounted_path + ":" + docker_path)
         options["-e"].append("NOTEBOOK_DIR=%s" % docker_path)
     if app.config.get("ENV", "") is not "":
@@ -101,7 +101,7 @@ def run_notebook_in_docker():
             options["-e"].append("\"%s\"" % env)
 
     for key, value in request.form.to_dict().iteritems():
-        if not key in ["username", "chorus_address", "image_name", "command", "session_id"]:
+        if not key in ["username", "master_address", "image_name", "command", "session_id"]:
             if key in cnr.docker_mutiple_options:
                 if options.has_key(key):
                     options[key].append(value)
@@ -192,9 +192,9 @@ def uploads():
 
 if __name__ == "__main__":
     app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "default_settings.cfg"))
-    if os.path.exists(os.path.join(os.getenv("CHORUS_NOTEBOOK_HOME", "."), 'settings.cfg')):
-        app.config.from_pyfile(os.path.join(os.getenv("CHORUS_NOTEBOOK_HOME", "."), 'settings.cfg'))
-    with open(os.path.join(os.getenv("CHORUS_NOTEBOOK_HOME", "."), '.notebook.port'), 'w') as f:
+    if os.path.exists(os.path.join(os.getenv("NOTEBOOK_HOME", "."), 'settings.cfg')):
+        app.config.from_pyfile(os.path.join(os.getenv("NOTEBOOK_HOME", "."), 'settings.cfg'))
+    with open(os.path.join(os.getenv("NOTEBOOK_HOME", "."), '.notebook.port'), 'w') as f:
         f.write(str(app.config.get('PORT', 8000)))
     if app.config.get("ENABLE_MONITOR", False):
         from dockerMonitor import DockerMonitor

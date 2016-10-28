@@ -1,13 +1,13 @@
 #!/bin/sh
-export CHORUS_NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$CHORUS_NOTEBOOK_HOME/pyenv_paths.sh"
+export NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$NOTEBOOK_HOME/pyenv_paths.sh"
 
-if [[ -f "$CHORUS_NOTEBOOK_HOME/.production" ]]; then
-	    SERVER_FILE="$CHORUS_NOTEBOOK_HOME"/chorus_notebook-current/commander_lib/chorusNotebookServer.py
+if [[ -f "$NOTEBOOK_HOME/.production" ]]; then
+	    SERVER_FILE="$NOTEBOOK_HOME"/chorus_notebook-current/commander_lib/notebookServer.py
 else
-	    SERVER_FILE="$CHORUS_NOTEBOOK_HOME"/commander_lib/chorusNotebookServer.py
+	    SERVER_FILE="$NOTEBOOK_HOME"/commander_lib/notebookServer.py
 fi
-NOTEBOOK_PORT_FILE="$CHORUS_NOTEBOOK_HOME"/.notebook.port
+NOTEBOOK_PORT_FILE="$NOTEBOOK_HOME"/.notebook.port
 
 if (test -f $NOTEBOOK_PORT_FILE ) && ( kill -0 $(lsof -t -i tcp:`cat $NOTEBOOK_PORT_FILE`) > /dev/null 2>&1 ); then
   notebook_pid=$(lsof -t -i tcp:`cat $NOTEBOOK_PORT_FILE`)

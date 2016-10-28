@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-export CHORUS_NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$CHORUS_NOTEBOOK_HOME/pyenv_paths.sh"
+export NOTEBOOK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$NOTEBOOK_HOME/pyenv_paths.sh"
 
-NOTEBOOK_PORT_FILE="$CHORUS_NOTEBOOK_HOME"/.notebook.port
+NOTEBOOK_PORT_FILE="$NOTEBOOK_HOME"/.notebook.port
 
 if [ -f $NOTEBOOK_PORT_FILE ]; then
   notebook_pid=$(lsof -t -i tcp:`cat $NOTEBOOK_PORT_FILE`)
