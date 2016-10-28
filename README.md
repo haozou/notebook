@@ -1,16 +1,16 @@
-ChorusCommander
+Notebook
 ======
  
-Chorus Commander to abstract Chorus datasource to the IPython notebook
+the IPython notebook web service
 
 Prerequisites:
 =====
-Docker need to be installed on both dev and production machine and you need to pull the alpinedata/chorus_commander docker image after intalling docker.
+Docker need to be installed on both dev and production machine and you need to pull the zh331873541/notebook docker image after intalling docker.
 
 On dev machine:
 
 If you are using mac. Follow the instruction on https://docs.docker.com/engine/installation/mac/ to install docker.
-Then run the command: docker pull alpinedata/chorus_commander to pull the image.
+Then run the command: docker pull zh331873541/notebook to pull the image.
 
 On production machine:
 
